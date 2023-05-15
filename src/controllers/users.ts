@@ -20,15 +20,30 @@ const addUser = async (req: Request, res: Response) => {
     await newUser.save();
     res.status(201).json({ id });
   } catch (err) {
-    res.status(500).json({ msg: 'try again later' });
+    res.status(500).json({ msg: 'Try again later' });
   }
 };
 
 const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.getAllUsers();
-    res.status(200).json({ users });
+    res.status(200).json({ users, length: users.length });
   } catch (err) {}
 };
 
-export { addUser, getUsers };
+const getUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (id.length !== 36) {
+    res.status(400).json({ msg: 'Invalid id' });
+  }
+  try {
+    const user = await User.getUser(id);
+    user
+      ? res.status(200).json(user)
+      : res.status(404).json({ msg: 'Page not found' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Try again later' });
+  }
+};
+
+export { addUser, getUsers, getUser };
