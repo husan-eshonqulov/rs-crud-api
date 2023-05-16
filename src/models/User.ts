@@ -76,6 +76,21 @@ class User {
       throw err;
     }
   }
+
+  static async deleteUser(id: string) {
+    try {
+      const data = await getData();
+      const users = data.users;
+      const oldUsersLen = users.length;
+      data.users = users.filter((u) => u.id !== id);
+      const updatedData = JSON.stringify(data);
+      await fs.writeFile(dataPath, updatedData, 'utf8');
+      const newUsersLen = data.users.length;
+      return newUsersLen < oldUsersLen;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 const getData = async () => {

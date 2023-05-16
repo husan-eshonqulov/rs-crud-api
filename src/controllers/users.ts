@@ -53,7 +53,7 @@ const updateUser = async (req: Request, res: Response) => {
   const { username, age, hobbies } = req.body;
 
   if (id.length !== 36) {
-    return res.status(400).json({ msg: 'Invalid id' });
+    return res.status(400).json({ msg: 'Invalid user id' });
   }
 
   if (!username || !age || !hobbies) {
@@ -68,9 +68,25 @@ const updateUser = async (req: Request, res: Response) => {
       ? res.status(200).json({ msg: 'User updated' })
       : res.status(404).json({ msg: 'Page not found' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ msg: 'Try again later' });
   }
 };
 
-export { addUser, getUsers, getUser, updateUser };
+const deleteUser = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  if (id.length !== 36) {
+    return res.status(400).json({ msg: 'Invalid user id' });
+  }
+
+  try {
+    const stat = await User.deleteUser(id);
+    stat
+      ? res.status(204).json({ msg: 'User removed' })
+      : res.status(404).json({ msg: 'Page not found' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Try again later' });
+  }
+};
+
+export { addUser, getUsers, getUser, updateUser, deleteUser };
