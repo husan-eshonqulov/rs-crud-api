@@ -7,6 +7,7 @@ type UserType = {
 
 type DataType = {
   users: UserType[];
+  length: number;
 };
 
 export { UserType, DataType };

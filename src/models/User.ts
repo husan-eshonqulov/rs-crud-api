@@ -1,7 +1,9 @@
 import path from 'path';
 import fs from 'fs/promises';
 
-import { UserType, DataType } from '../types';
+import { DataType } from '../types';
+
+const dataPath = path.join(__dirname, '..', '..', 'db', 'db.json');
 
 class User {
   id: string;
@@ -18,12 +20,12 @@ class User {
 
   async save() {
     try {
-      const dataPath = path.join(__dirname, '..', '..', 'db', 'db.json');
-      const data = await fs.readFile(dataPath, 'utf8');
-      const parsedData: DataType = JSON.parse(data);
-      parsedData.users.push(this);
-      const jsonData = JSON.stringify(parsedData);
-      await fs.writeFile(dataPath, jsonData, 'utf8');
+      const data = await getData();
+      const users = data.users;
+      users.push(this);
+      data.length++;
+      const newData = JSON.stringify(data);
+      await fs.writeFile(dataPath, newData, 'utf8');
     } catch (err) {
       throw err;
     }
@@ -31,10 +33,9 @@ class User {
 
   static async getAllUsers() {
     try {
-      const dataPath = path.join(__dirname, '..', '..', 'db', 'db.json');
-      const data = await fs.readFile(dataPath, 'utf8');
-      const parsedData: DataType = JSON.parse(data);
-      return parsedData.users;
+      const data = await getData();
+      const users = data.users;
+      return users;
     } catch (err) {
       throw err;
     }
@@ -42,16 +43,49 @@ class User {
 
   static async getUser(id: string) {
     try {
-      const dataPath = path.join(__dirname, '..', '..', 'db', 'db.json');
-      const data = await fs.readFile(dataPath, 'utf8');
-      const parsedData: DataType = JSON.parse(data);
-      const users = parsedData.users;
-      const user = users.filter((u: UserType) => u.id === id);
-      return user[0];
+      const data = await getData();
+      const users = data.users;
+      const user = users.filter((u) => u.id === id)[0];
+      return user;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async updateUser(
+    id: string,
+    username: string,
+    age: number,
+    hobbies: string[]
+  ) {
+    try {
+      const data = await getData();
+      const users = data.users;
+      const user = users.filter((u) => u.id === id)[0];
+
+      if (user) {
+        user.username = username;
+        user.age = age;
+        user.hobbies = hobbies;
+      }
+
+      const updatedData = JSON.stringify(data);
+      await fs.writeFile(dataPath, updatedData, 'utf8');
+      return user ? true : false;
     } catch (err) {
       throw err;
     }
   }
 }
+
+const getData = async () => {
+  try {
+    const data = await fs.readFile(dataPath, 'utf8');
+    const parsedData: DataType = JSON.parse(data);
+    return parsedData;
+  } catch (err) {
+    throw err;
+  }
+};
 
 export default User;
